@@ -1,21 +1,22 @@
----
 name: Checks
-
 on: [push]
- 
+
 jobs:
   test-lint:
     name: Test and lint
     runs-on: ubuntu-latest
     steps:
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-          username: ${{ secrets.DOCKERHUB_USER }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Checkout 
-      uses: actions/Checkout@v2        
-    - name: Test
-      run: docker-compose run --rm app sh -c "python manage.py test"  
-    - name: Lint  
-      run: docker-compose run --rm app sh -c "flake8"
+      - uses: actions/checkout@v4
+
+      # Build containers (if needed by your compose file)
+      - run: docker compose build
+
+      - name: Test
+        run: docker compose run --rm app sh -c "python manage.py test"
+
+      - name: Lint
+        run: docker compose run --rm app sh -c "flake8"
+
+      # Clean up containers/volumes so repeated runs don't conflict
+      - if: always()
+        run: docker compose down -v
