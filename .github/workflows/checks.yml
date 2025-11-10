@@ -1,22 +1,37 @@
 name: Checks
+
 on: [push]
 
 jobs:
   test-lint:
     name: Test and lint
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+      # 1️⃣ Checkout your repository code
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # Build containers (if needed by your compose file)
-      - run: docker compose build
+      # 2️⃣ Log in to Docker Hub (requires secrets)
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      # 3️⃣ Build the Docker image defined in your docker-compose.yml
+      - name: Build services
+        run: docker compose build
+
+      # 4️⃣ Run your Django tests
       - name: Test
         run: docker compose run --rm app sh -c "python manage.py test"
 
+      # 5️⃣ Lint your code using flake8
       - name: Lint
         run: docker compose run --rm app sh -c "flake8"
 
-      # Clean up containers/volumes so repeated runs don't conflict
+      # 6️⃣ Clean up containers and volumes after the run
       - if: always()
+        name: Clean up
         run: docker compose down -v
