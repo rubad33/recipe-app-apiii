@@ -1,9 +1,10 @@
 """
-sample tests 
-
+Sample tests.
 """
+
 from django.test import SimpleTestCase
 from app import calc
+
 
 class CalcTests(SimpleTestCase):
     """Tests for the calculator module."""
@@ -16,6 +17,4 @@ class CalcTests(SimpleTestCase):
     def test_add_negative_numbers(self):
         """Test adding two negative numbers."""
         res = calc.add(-2, -3)
-        self.assertEqual(res, -5)    
-
-    
+        self.assertEqual(res, -5)
